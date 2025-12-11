@@ -1,0 +1,230 @@
+{% extends 'lecturas/base.html' %}
+
+{% block title %}Tomar Lecturas - Ruta {{ ruta }}{% endblock %}
+
+{% block content %}
+<h1 class="mt-4">Tomar Lecturas - Ruta {{ ruta }}</h1>
+<ol class="breadcrumb mb-4">
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'listar_rutas' %}">Rutas</a></li>
+    <li class="breadcrumb-item active">Ruta {{ ruta }}</li>
+</ol>
+
+<!-- Información de la ruta -->
+<div class="alert {% if ruta_abierta %}alert-success{% else %}alert-secondary{% endif %}">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <i class="fas {% if ruta_abierta %}fa-folder-open{% else %}fa-lock{% endif %} me-2"></i>
+            <strong>Estado de la Ruta:</strong>
+            {% if ruta_abierta %}
+            Abierta - Puede registrar y modificar lecturas
+            {% else %}
+            Cerrada - Solo consulta (no se pueden modificar lecturas)
+            {% endif %}
+        </div>
+        <div class="col-md-4 text-md-end mt-2 mt-md-0">
+            <strong>Periodo:</strong> {{ periodo }}
+        </div>
+    </div>
+</div>
+
+<!-- Tabla de lecturas -->
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <i class="fas fa-clipboard-list me-1"></i>
+        Medidores de la Ruta
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Orden</th>
+                        <th>Cliente</th>
+                        <th>Domicilio</th>
+                        <th>Nº Medidor</th>
+                        <th>Lect. Anterior</th>
+                        <th>Lect. Actual</th>
+                        <th>Consumo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lectura in lecturas %}
+                    <tr {% if lectura.lectura_actual %}class="table-success" {% endif %}>
+                        <td><strong>{{ lectura.orden }}</strong></td>
+                        <td>{{ lectura.cliente.denominacion }}</td>
+                        <td>{{ lectura.cliente.domicilio }}</td>
+                        <td>
+                            <span class="badge bg-info">{{ lectura.numero_medidor }}</span>
+                        </td>
+                        <td class="text-center">
+                            <strong>{{ lectura.lectura_anterior }}</strong>
+                        </td>
+                        <td>
+                            {% if ruta_abierta %}
+                            <form method="post" action="{% url 'guardar_lectura' lectura.cod_lectura %}"
+                                class="form-inline-lectura">
+                                {% csrf_token %}
+                                <input type="number" name="lectura_actual"
+                                    value="{% if lectura.lectura_actual %}{{ lectura.lectura_actual }}{% endif %}"
+                                    class="form-control input-lectura" placeholder="---" min="0" step="1"
+                                    style="width: 100px; display: inline-block;" id="lectura_{{ lectura.cod_lectura }}">
+                                <button type="submit" class="btn btn-sm btn-success ms-2">
+                                    <i class="fas fa-save"></i>
+                                </button>
+                            </form>
+                            {% else %}
+                            <span class="text-muted">
+                                {% if lectura.lectura_actual %}
+                                <strong>{{ lectura.lectura_actual }}</strong>
+                                {% else %}
+                                ---
+                                {% endif %}
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if lectura.consumo_kwh %}
+                            <span class="badge bg-primary">{{ lectura.consumo_kwh }} kWh</span>
+                            {% else %}
+                            <span class="text-muted">---</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group-vertical btn-group-sm" role="group">
+                                <!-- Botón Novedad -->
+                                {% if ruta_abierta %}
+                                <a href="{% url 'agregar_novedad' lectura.cod_lectura %}"
+                                    class="btn btn-warning btn-action mb-1">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    Novedad
+                                    {% if lectura.novedades.count > 0 or lectura.novedad_libre %}
+                                    ({{ lectura.novedades.count }}{% if lectura.novedad_libre %}+{% endif %})
+                                    {% endif %}
+                                </a>
+                                {% else %}
+                                <a href="{% url 'agregar_novedad' lectura.cod_lectura %}"
+                                    class="btn btn-warning btn-action mb-1 disabled">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    Novedad
+                                    {% if lectura.novedades.count > 0 or lectura.novedad_libre %}
+                                    ({{ lectura.novedades.count }}{% if lectura.novedad_libre %}+{% endif %})
+                                    {% endif %}
+                                </a>
+                                {% endif %}
+
+                                <!-- Botón Eliminar -->
+                                {% if ruta_abierta and lectura.lectura_actual %}
+                                <form method="post" action="{% url 'eliminar_lectura' lectura.cod_lectura %}"
+                                    style="display: inline;"
+                                    onsubmit="return confirm('¿Está seguro de eliminar la lectura de {{ lectura.cliente.denominacion }}?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-action">
+                                        <i class="fas fa-trash"></i> Eliminar
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">
+                            No hay lecturas para mostrar
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginación -->
+        {% if is_paginated %}
+        <nav aria-label="Navegación de páginas">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">Primera</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                </li>
+                {% endif %}
+
+                <li class="page-item active">
+                    <span class="page-link">
+                        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                    </span>
+                </li>
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Última</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Leyenda y botones -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">Leyenda</h6>
+                <ul class="mb-0">
+                    <li><span class="table-success p-1">Fila verde</span> = Lectura registrada</li>
+                    <li><strong>Consumo</strong> = Lectura Actual - Lectura Anterior</li>
+                    <li><i class="fas fa-exclamation-triangle text-warning"></i> = Tiene novedades</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mt-3 mt-md-0">
+        <a href="{% url 'listar_rutas' %}" class="btn btn-secondary btn-lg w-100 mb-2">
+            <i class="fas fa-arrow-left me-2"></i>Volver a Rutas
+        </a>
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-lg w-100">
+            <i class="fas fa-home me-2"></i>Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-inline-lectura {
+        display: inline-flex;
+        align-items: center;
+    }
+
+    @media (max-width: 768px) {
+        .table {
+            font-size: 0.85rem;
+        }
+
+        .btn-action {
+            font-size: 0.75rem;
+            padding: 0.4rem 0.6rem;
+        }
+
+        .input-lectura {
+            width: 80px !important;
+            font-size: 1rem;
+        }
+    }
+
+    /* Clase disabled para enlaces */
+    a.disabled {
+        pointer-events: none;
+        cursor: default;
+        opacity: 0.65;
+    }
+</style>
+{% endblock %}
