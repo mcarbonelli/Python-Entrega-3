@@ -1,0 +1,88 @@
+{% extends 'lecturas/base.html' %}
+{% load static %}
+
+{% block title %}Tipos de Novedades{% endblock %}
+
+{% block content %}
+<h1 class="mt-4">Tipos de Novedades</h1>
+<ol class="breadcrumb mb-4">
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+    <li class="breadcrumb-item active">Tipos de Novedades</li>
+</ol>
+
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <div>
+            <i class="fas fa-circle-info me-1"></i>
+            Tipos de Novedades
+        </div>
+    </div>
+
+    <div class="card-body">
+        <a href="{% url 'crear_tipo_novedad' %}" class="btn btn-success btn-sm mb-3">
+            <i class="fas fa-plus me-1"></i> Crear tipo de novedad
+        </a>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover" id="datatablesSimple">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Descripción</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for novedad in novedades %}
+                    <tr>
+                        <td>{{ novedad.cod_novedad }}</td>
+                        <td>{{ novedad.descripcion }}</td>
+
+                        <td>
+                            <a href="{% url 'editar_tipo_novedad' novedad.cod_novedad %}"
+                                class="btn btn-sm btn-primary btn-action mb-1">
+                                <i class="fa-solid fa-pen-to-square"></i> Editar
+                            </a>
+                            <form method="post" action="{% url 'eliminar_tipo_novedad' novedad.cod_novedad %}"
+                                style="display: inline;"
+                                onsubmit="return confirm('¿Está seguro de eliminar el tipo de novedad \'{{ novedad.descripcion }}\'? Esta acción no se puede deshacer.');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-danger btn-action mb-1">
+                                    <i class="fa-solid fa-trash-can"></i> Eliminar
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div class="mb-4">
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-lg">
+        <i class="fas fa-home me-2"></i>Volver al Dashboard
+    </a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
+    crossorigin="anonymous"></script>
+<script>
+    window.addEventListener('DOMContentLoaded', event => {
+        const datatablesSimple = document.getElementById('datatablesSimple');
+        if (datatablesSimple) {
+            new simpleDatatables.DataTable(datatablesSimple, {
+                labels: {
+                    placeholder: "Buscar...",
+                    perPage: "Tipos por página",
+                    noRows: "No hay tipos de novedades para mostrar",
+                    info: "Mostrando {start} a {end} de {rows} tipos"
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

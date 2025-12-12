@@ -1,0 +1,158 @@
+{% extends 'lecturas/base.html' %}
+
+{% block title %}Dashboard - Colector de Datos{% endblock %}
+
+{% block content %}
+<h1 class="mt-4">Dashboard</h1>
+<ol class="breadcrumb mb-4">
+    <li class="breadcrumb-item active">Panel de Control</li>
+</ol>
+
+<!-- Tarjetas de estadísticas -->
+<div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card card-mauricio-blue h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-white-75 small">Total Rutas</div>
+                        <div class="h2 mb-0">{{ total_rutas }}</div>
+                    </div>
+                    <div class="text-white-50">
+                        <i class="fas fa-route fa-3x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between bg-white bg-opacity-10">
+                <a class="small text-white stretched-link" href="{% url 'listar_rutas' %}">Ver Detalles</a>
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card card-mauricio-green h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-white-75 small">Rutas Abiertas</div>
+                        <div class="h2 mb-0">{{ rutas_abiertas }}</div>
+                    </div>
+                    <div class="text-white-50">
+                        <i class="fas fa-folder-open fa-3x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between bg-white bg-opacity-10">
+                <a class="small text-white stretched-link" href="{% url 'seleccionar_periodo' %}">Seleccionar
+                    Periodo</a>
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card bg-success text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-white-75 small">Lecturas Tomadas</div>
+                        <div class="h2 mb-0">{{ lecturas_tomadas }}</div>
+                    </div>
+                    <div class="text-white-50">
+                        <i class="fas fa-check-circle fa-3x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-white bg-opacity-10">
+                <div class="small text-white">De {{ total_lecturas }} totales</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card card-mauricio-orange h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-white-75 small">Lecturas Pendientes</div>
+                        <div class="h2 mb-0">{{ lecturas_pendientes }}</div>
+                    </div>
+                    <div class="text-white-50">
+                        <i class="fas fa-clock fa-3x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-white bg-opacity-10">
+                <div class="small text-white">Por completar</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Accesos rápidos -->
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-bolt me-1"></i>
+                Accesos Rápidos
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <a href="{% url 'seleccionar_periodo' %}" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-calendar me-2"></i>Seleccionar Periodo
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{% url 'listar_rutas' %}" class="btn btn-success btn-lg w-100">
+                            <i class="fas fa-list me-2"></i>Ver Rutas
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="/admin/" class="btn btn-secondary btn-lg w-100" target="_blank">
+                            <i class="fas fa-cog me-2"></i>Administración
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Información adicional -->
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-user me-1"></i>
+                Mi Actividad
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Mis Lecturas Registradas</h5>
+                <p class="card-text display-4 text-primary">{{ mis_lecturas }}</p>
+                <p class="text-muted">Total de lecturas que has registrado en el sistema</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <i class="fas fa-info-circle me-1"></i>
+                Instrucciones
+            </div>
+            <div class="card-body">
+                <ol class="mb-0">
+                    <li>Selecciona el periodo de consumo (año/mes)</li>
+                    <li>Visualiza las rutas disponibles para ese periodo</li>
+                    <li>Elige una ruta para comenzar a tomar lecturas</li>
+                    <li>Ingresa las lecturas de cada medidor</li>
+                    <li>Agrega novedades si es necesario</li>
+                    <li>Cierra la ruta cuando finalices</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
