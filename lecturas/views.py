@@ -3,13 +3,13 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, FormView, UpdateView
 from django.contrib import messages
-from django.db.models import Count, Q, Max
+from django.db.models import *
 from django.utils import timezone
 
 from django.views import View
 from django.urls import reverse_lazy, reverse
 from .models import Operador, Cliente, Lote, Novedad
-from .forms import LoginForm, PeriodoForm, LecturaForm, NovedadForm
+from .forms import LoginForm, PeriodoForm, LecturaForm, NovedadForm, NovedadModelForm
 
 class LoginView(View):
     """Vista de login"""
@@ -232,7 +232,12 @@ class AgregarNovedadView(LoginRequiredMixin, View):
     
     def get(self, request, pk):
         lectura = get_object_or_404(Lote, pk=pk)
-        form = NovedadForm(initial={'novedad_libre': lectura.novedad_libre})
+        # Obtener las novedades actuales de la lectura para pre-cargarlas en el formulario
+        novedades_actuales = list(lectura.novedades.values_list('cod_novedad', flat=True))
+        form = NovedadForm(initial={
+            'novedad_libre': lectura.novedad_libre,
+            'novedades_predefinidas': novedades_actuales
+        })
         return render(request, self.template_name, {'form': form, 'lectura': lectura})
     
     def post(self, request, pk):
@@ -308,11 +313,57 @@ class AbrirRutaView(LoginRequiredMixin, View):
 
 
 
+class CrearNovedadView(LoginRequiredMixin, View):
+    """Vista para crear una novedad"""
+    model = Novedad
+    form_class = NovedadModelForm
+    template_name = 'lecturas/crear_tipo_novedad.html'
+    success_url = reverse_lazy('listar_tipos_novedades')
+    
+    def get(self, request):
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+    
+    def post(self, request):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(self.request, 'Novedad creada correctamente')
+            return redirect(self.success_url)
+        return render(request, self.template_name, {'form': form})
+
+
+class EditarNovedadView(LoginRequiredMixin, UpdateView):
+    """Vista para editar una novedad existente"""
+    model = Novedad
+    form_class = NovedadModelForm
+    template_name = 'lecturas/editar_tipo_novedad.html'
+    success_url = reverse_lazy('listar_tipos_novedades')
+    
+    def form_valid(self, form):
+        messages.success(self.request, 'Novedad actualizada correctamente')
+        return super().form_valid(form)
+
+
+class EliminarNovedadView(LoginRequiredMixin, View):
+    """Vista para eliminar una novedad"""
+    def post(self, request, pk):
+        novedad = get_object_or_404(Novedad, pk=pk)
+        descripcion = novedad.descripcion
+        
+        # Verificar si está siendo usada en alguna lectura
+        if novedad.lote_set.exists():
+            messages.error(request, f'No se puede eliminar la novedad "{descripcion}" porque está siendo utilizada en lecturas.')
+            return redirect('listar_tipos_novedades')
+        
+        novedad.delete()
+        messages.success(request, f'Novedad "{descripcion}" eliminada correctamente')
+        return redirect('listar_tipos_novedades')
+
+
 class ListarTiposNovedadesView(LoginRequiredMixin, ListView):
     """Vista para listar tipos de novedades"""
     model = Novedad
     template_name = 'lecturas/listar_tipos_novedades.html'
     context_object_name = 'novedades'   
     ordering = ['descripcion']
-
-

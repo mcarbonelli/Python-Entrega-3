@@ -129,3 +129,33 @@ class NovedadForm(forms.Form):
             raise ValidationError('Debe seleccionar al menos una novedad o escribir una observación.')
         
         return cleaned_data
+
+
+class NovedadModelForm(forms.ModelForm):
+    """Formulario para crear/editar tipos de novedades"""
+    class Meta:
+        model = Novedad
+        fields = ['descripcion']
+        widgets = {
+            'descripcion': forms.TextInput(attrs={
+                'class': 'form-control form-control-lg',
+                'placeholder': 'Ingrese la descripción de la novedad',
+                'maxlength': '200'
+            })
+        }
+        labels = {
+            'descripcion': 'Descripción'
+        }
+    
+    def clean_descripcion(self):
+        descripcion = self.cleaned_data.get('descripcion')
+        
+        # Validar que no esté vacía
+        if not descripcion or not descripcion.strip():
+            raise ValidationError('La descripción no puede estar vacía')
+        
+        # Validar longitud mínima
+        if len(descripcion.strip()) < 3:
+            raise ValidationError('La descripción debe tener al menos 3 caracteres')
+        
+        return descripcion.strip()

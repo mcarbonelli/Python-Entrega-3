@@ -1,0 +1,136 @@
+{% extends 'lecturas/base.html' %}
+
+{% block title %}Agregar Novedad{% endblock %}
+
+{% block content %}
+<h1 class="mt-4">Agregar Novedad</h1>
+<ol class="breadcrumb mb-4">
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'listar_rutas' %}">Rutas</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'tomar_lecturas' lectura.ruta %}">Ruta {{ lectura.ruta }}</a></li>
+    <li class="breadcrumb-item active">Novedad</li>
+</ol>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- Información del suministro -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <i class="fas fa-info-circle me-2"></i>
+                Información del Suministro
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Cliente:</strong> {{ lectura.cliente.denominacion }}</p>
+                        <p><strong>Domicilio:</strong> {{ lectura.cliente.domicilio }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Nº Medidor:</strong> <span class="badge bg-info">{{ lectura.numero_medidor }}</span>
+                        </p>
+                        <p><strong>Orden:</strong> {{ lectura.orden }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulario de novedades -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Registrar Novedades
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <!-- Novedades predefinidas -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Seleccione las novedades aplicables:</label>
+                        <div class="border rounded p-3 bg-light">
+                            {% for choice in form.novedades_predefinidas %}
+                            <div class="form-check mb-2">
+                                {{ choice.tag }}
+                                <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                    {{ choice.choice_label }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if form.novedades_predefinidas.errors %}
+                        <div class="text-danger small mt-2">{{ form.novedades_predefinidas.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Novedad libre -->
+                    <div class="mb-4">
+                        {{ form.novedad_libre.label_tag }}
+                        {{ form.novedad_libre }}
+                        {% if form.novedad_libre.errors %}
+                        <div class="text-danger small mt-2">{{ form.novedad_libre.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Errores del formulario -->
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                    {% endif %}
+
+                    <!-- Botones -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-warning btn-lg">
+                            <i class="fas fa-save me-2"></i>Guardar Novedades
+                        </button>
+                        <a href="{% url 'tomar_lecturas' lectura.ruta %}" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Novedades actuales -->
+        {% if lectura.novedades.count > 0 or lectura.novedad_libre %}
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <i class="fas fa-list me-2"></i>
+                Novedades Registradas Actualmente
+            </div>
+            <div class="card-body">
+                {% if lectura.novedades.count > 0 %}
+                <h6>Novedades Predefinidas:</h6>
+                <ul>
+                    {% for novedad in lectura.novedades.all %}
+                    <li>{{ novedad.descripcion }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+
+                {% if lectura.novedad_libre %}
+                <h6>Observaciones:</h6>
+                <p class="mb-0">{{ lectura.novedad_libre }}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    @media (max-width: 768px) {
+        .form-check-label {
+            font-size: 1rem;
+        }
+
+        .form-check-input {
+            width: 1.5rem;
+            height: 1.5rem;
+            margin-top: 0.1rem;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,12 +1,12 @@
-from django.db import models                    #Esta libreria nos permite heredar los metodos para trabajr con el ORM.
-from django.contrib.auth.models import User     #Esta libreria nos permite heredar los metodos para trabajr con el ORM.
+from django.db import models                    #Esta libreria me permite heredar los metodos para trabajr con el ORM.
+from django.contrib.auth.models import User     #Esta libreria la uso para manejar la autenticacion de usuarios integrada.
 from django.utils import timezone               #Esta libreria la uso para insertar un timestamp en el campo fecha_hora_registro.
 
 
 class Operador(models.Model):
     """Esta clase modela los operadores del sistema"""
     cod_ope = models.AutoField(primary_key=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='operador')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='operador') # Acá creo la relacion 1 a 1 entre mi modelo Operador y el modelo User integrado
     
     # Redefino algunas propiedades de la clase Meta heredadas de models para que sean ms representativas
     class Meta:
@@ -114,7 +114,7 @@ class Lote(models.Model):
         """Devuelve el periodo en formato legible"""
         meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
                 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-        return f"{meses[self.mes_consumo]} {self.ano_consumo}"
+        return f"{meses[self.mes_consumo - 1]} {self.ano_consumo}"
 
 
 class NovedadLectura(models.Model):

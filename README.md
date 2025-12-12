@@ -81,19 +81,19 @@ Dejé creado 2 operadores para probar el login/logout y el funcionamiento de la 
 ## Estructura del Proyecto
 Esta sería la estructura básica del proyecto con las carpetas más relevantes y su decripción
 
-* colector_datos/
-* colector_datos/    ( Es el proyecto principal )
-* lecturas/          ( Es la app desarrollada (por ahora hay sola una, pero más adelante puede que se agreguen más) )
-   * models.py       ( Acá se encuentran los modelos que definí y que "migré" a la base de datos )
-   * views.py        ( Acá se encuentran las vistas que defini utilizando class-based views )
-   * forms.py        ( Acá se encuentran los formularios que cree para el ingreso y validacióin de datos )
-   * urls.py         ( En esta parte es donde realizo el ruteo de las urls para que vayan a las vistas correspondientes )
-   * templates/      ( Esta carpeta están los html que fui crenado para mostrar los datos al usuario, incluyendo el html base que luego heredan los demás html )
-* startboostrap/     ( Carpeta que contiene los archivos CSS, JS, Assets originales descargados (https://startbootstrap.com/theme/sb-admin-pro) )
-* static/            ( Est carpeta  (llamada así por convención) contiene los archivos CSS, JS, Assets que uso el template original )
-* dblecturas.sqlite3 ( Base de datos que contiene las tablas y datos de los modelos mmigrados )
-* manage.py          ( Es el archvio de configuración de django )
-* README.md          ( Este archivo. )
+colector_datos/
+── colector_datos/     # Es el proyecto principal   
+── lecturas/           # Es la app desarrollada (por ahora hay sola una, pero más adelante puede que se agreguen más)
+   ── models.py        # Acá se encuentran los modelos que definí y que "migré" a la base de datos
+   ── views.py         # Acá se encuentran las vistas que defini utilizando class-based views 
+   ── forms.py         # Acá se encuentran los formularios que cree para el ingreso y validacióin de datos 
+   ── urls.py          # En esta parte es donde realizo el ruteo de las urls para que vayan a las vistas correspondientes   
+   ── templates/       # Esta carpeta están los html que fui crenado para mostrar los datos al usuario, incluyendo el html base que luego heredan los demás html
+── startboostrap/      # Carpeta que contiene los archivos CSS, JS, Assets originales descargados (https://startbootstrap.com/theme/sb-admin-pro)
+── static/             # Est carpeta  (llamada así por convención) contiene los archivos CSS, JS, Assets que uso el template original
+── dblecturas.sqlite3  # Base de datos que contiene las tablas y datos de los modelos mmigrados
+── manage.py           # Es el archvio de configuración de django
+── README.md           # Este archivo.
 
 
 ## Tecnologías y metodologías utilizadas
